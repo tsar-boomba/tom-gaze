@@ -1,0 +1,16 @@
+[package]
+name = "demo"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+color-eyre = "0.6.2"
+cv-convert = { path = "../../rust-cv-convert/cv-convert", default-features = false, features = ["opencv_0-88", "ndarray_0-15"]}
+itertools = "0.12.1"
+mimalloc = "0.1.39"
+ndarray = { workspace = true }
+opencv = { workspace = true, features = ["clang-runtime"] }
+ort = { workspace = true, features = ["half", "copy-dylibs", "coreml"] }
+tracing-subscriber = "0.3.18"

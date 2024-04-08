@@ -1,0 +1,9 @@
+[package]
+name = "web-infer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+js-sys = "0.3.69"
+ultraface = { path = "../ultraface" }
+web-sys = "0.3.69"

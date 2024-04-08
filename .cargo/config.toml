@@ -1,0 +1,13 @@
+[build]
+
+[target.aarch64-apple-darwin]
+rustflags = [
+	"-C", "link-arg=-fuse-ld=lld",
+	"-C", "link-arg=-fapple-link-rtlib"
+]
+
+[target.x86_64-apple-darwin]
+rustflags = [
+	"-C", "link-arg=-fuse-ld=lld",
+	"-C", "link-arg=-fapple-link-rtlib"
+]
