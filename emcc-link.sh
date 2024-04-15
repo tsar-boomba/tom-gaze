@@ -1,8 +1,7 @@
 #!/bin/sh
 
 emcc -s MALLOC=emmalloc \
--s "EXPORTED_FUNCTIONS=['_main', '_infer', 'malloc', '_malloc']" \
--s ENVIRONMENT="web" \
--s EXPORT_ES6=1 \
--s INCLUDE_FULL_LIBRARY=1 \
--s USE_ES6_IMPORT_META=1 $@
+	-s MODULARIZE=0 \
+	-s INCLUDE_FULL_LIBRARY=1 \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s ENVIRONMENT="web" $@

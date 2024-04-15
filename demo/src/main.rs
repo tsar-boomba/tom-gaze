@@ -30,8 +30,8 @@ fn main() -> Result<()> {
     let ort_model = OrtModel::new(format!("{}.onnx", MODEL))?;
 
     // Init face detection
-    let ultraface_variant = UltrafaceVariant::W640H480;
-    let face_detector = UltrafaceModel::new(ultraface_variant, 0.5, 0.72)?;
+    let ultraface_variant = UltrafaceVariant::W320H240;
+    let face_detector = UltrafaceModel::new(ultraface_variant, 0.5, 0.68)?;
 
     let mut camera = videoio::VideoCapture::new(0, videoio::CAP_ANY)?;
     let mut frame = Mat::default();
@@ -51,6 +51,7 @@ fn main() -> Result<()> {
         );
 
         for (rect, _confidence) in faces {
+            println!("{rect:#?}");
             let rect = Rect {
                 x: (rect.x * CAM_WIDTH) as i32,
                 y: (rect.y * CAM_HEIGHT) as i32,

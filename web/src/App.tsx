@@ -1,15 +1,10 @@
-import { useEffect, useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
+import { useEffect, useRef } from 'react';
 import './App.css';
-
-const WIDTH = 320;
-const HEIGHT = 240;
-const IMG_BUFFER_LEN = WIDTH * HEIGHT * 4;
+import { InferenceSession } from 'onnxruntime-web';
+import { infer } from './infer';
+import { OUTPUT_HEIGHT, OUTPUT_WIDTH, CAMERA_WIDTH, CAMERA_HEIGHT } from './consts';
 
 function App() {
-	const [count, setCount] = useState(0);
-
 	useEffect(() => {
 		setTimeout(async () => {
 			for (const device of await navigator.mediaDevices.enumerateDevices()) {
@@ -24,63 +19,93 @@ function App() {
 
 					const video = document.createElement('video');
 					video.srcObject = stream;
-					video.autoplay = true;
-					document.body.appendChild(video);
+					video.width = CAMERA_WIDTH;
+					video.height = CAMERA_HEIGHT;
 
-					await video.play();
+					try {
+						await video.play();
+					} finally {
+						// asd;lkjasdfjkl;
+					}
 
-					const canvas = new OffscreenCanvas(WIDTH, HEIGHT);
-					const context = canvas.getContext('2d', {
+					const imgCanvas = new OffscreenCanvas(CAMERA_WIDTH, CAMERA_HEIGHT);
+					const imgContext = imgCanvas.getContext('2d', {
 						willReadFrequently: true,
 						alpha: false,
 					})!;
 
-					await new Promise((res) => setTimeout(res, 1000));
-					const ptr = _malloc(IMG_BUFFER_LEN);
-					const dataOnHeap = new Uint8Array(
-						Module.HEAPU8.buffer,
-						ptr,
-						IMG_BUFFER_LEN
-					);
+					const resultCanvas = document.createElement('canvas');
+					resultCanvas.width = OUTPUT_WIDTH;
+					resultCanvas.height = OUTPUT_HEIGHT;
+					document.body.appendChild(resultCanvas);
+					const resultContext = resultCanvas.getContext('2d', {
+						alpha: false,
+					})!;
+					resultContext.strokeStyle = '#00FF00FF';
+					resultContext.lineWidth = 2;
 
-					// eslint-disable-next-line no-constant-condition
-					while (1) {
-						context.drawImage(video, 0, 0, WIDTH, HEIGHT);
-						const img = context.getImageData(0, 0, WIDTH, HEIGHT);
-						dataOnHeap.set(img.data);
-						const start = Date.now();
-						Module._infer(ptr, IMG_BUFFER_LEN);
-						console.log('Frame process time (ms):', Date.now() - start);
-						// Block this task temporarily so that other things can happen
-						await new Promise((res) => setTimeout(res, 200));
+					// ultraface-RFB-320-quant.onnx
+					const modelRes = await fetch('/ultraface-RFB-320-sim.onnx');
+					const session = await InferenceSession.create(await modelRes.arrayBuffer(), {
+						executionMode: 'sequential',
+						graphOptimizationLevel: 'all',
+						extra: {
+							optimization: {
+								enable_gelu_approximation: "1"
+							}
+						}
+					});
+
+					try {
+						// eslint-disable-next-line no-constant-condition
+						while (1) {
+							imgContext.drawImage(video, 0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+							const img = imgContext.getImageData(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+							const boxes = await infer(img, session);
+
+							resultContext.putImageData(img, 0, 0);
+							for (const [box] of boxes) {
+								const x = box.x * OUTPUT_WIDTH;
+								const y = box.y * OUTPUT_HEIGHT;
+								const width = box.width * OUTPUT_WIDTH;
+								const height = box.height * OUTPUT_HEIGHT;
+
+								//console.log(box);
+
+								resultContext.strokeRect(x, y, width, height);
+							}
+
+							await new Promise((res) => setTimeout(res, 3000));
+						}
+					} finally {
+						await session.release();
 					}
 				}
 			}
 		}, 0);
 	}, []);
 
+	const input = useRef<HTMLInputElement>(null);
+
 	return (
 		<>
-			<div>
-				<a href='https://vitejs.dev' target='_blank'>
-					<img src={viteLogo} className='logo' alt='Vite logo' />
-				</a>
-				<a href='https://react.dev' target='_blank'>
-					<img src={reactLogo} className='logo react' alt='React logo' />
-				</a>
-			</div>
-			<h1>Vite + React</h1>
-			<div className='card'>
-				<button onClick={() => setCount((count) => count + 1)}>
-					count is {count}
-				</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className='read-the-docs'>
-				Click on the Vite and React logos to learn more
-			</p>
+			{/* <input type='file' ref={input} onChange={async (e) => {
+				const file = e.target.files![0];
+				const reader = new FileReader();
+				const dataUrl = await new Promise<string>((res) => {
+					reader.onload = (e) => {
+						res(e.target?.result as string);
+					}
+					reader.readAsDataURL(file);
+				});
+				
+				const img = new Image();
+				img.src = dataUrl;
+				document.body.appendChild(img);
+				img.onload = () => {
+					console.log({ w: img.width, h: img.height })
+				}
+			}} /> */}
 		</>
 	);
 }

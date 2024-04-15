@@ -2,7 +2,7 @@ use std::sync::OnceLock;
 
 use ultraface::UltrafaceModel;
 
-static ULTRAFACE_MODEL: &'static [u8] = include_bytes!("../../assets/ultraface-RFB-320-quant.onnx");
+static ULTRAFACE_MODEL: &'static [u8] = include_bytes!("../../assets/ultraface-RFB-320-sim.onnx");
 static FACE_DETECTOR: OnceLock<UltrafaceModel<'static>> = OnceLock::new();
 
 const WIDTH: usize = 320;
@@ -28,7 +28,7 @@ pub extern "C" fn infer(image: *mut u8, len: usize) {
     let faces = FACE_DETECTOR
         .get()
         .unwrap()
-        .detect(unsafe { &TRANSFORM_BUFFER })
+        .detect(unsafe { &mut TRANSFORM_BUFFER })
         .unwrap();
 
     println!("{faces:?}");
@@ -36,12 +36,10 @@ pub extern "C" fn infer(image: *mut u8, len: usize) {
 
 /// Initialize everything needed for inference
 fn main() {
-    println!("Hello from Rust!");
-
     FACE_DETECTOR
         .set(
             ultraface::UltrafaceModel::new(
-                ultraface::UltrafaceVariant::W320H240Quantized,
+                ultraface::UltrafaceVariant::W320H240,
                 [],
                 ULTRAFACE_MODEL,
                 0.5,

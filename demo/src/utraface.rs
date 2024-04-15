@@ -17,7 +17,7 @@ type Rect = Rect_<f32>;
 
 // Links to the Ultraface model files
 const ULTRAFACE_640: &str = "./assets/ultraface-RFB-640.onnx";
-const ULTRAFACE_320: &str = "./assets/ultraface-RFB-320.onnx";
+const ULTRAFACE_320: &str = "./assets/ultraface-RFB-320-sim.onnx";
 
 /// Supported variants of the Ultraface model.
 pub enum UltrafaceVariant {
