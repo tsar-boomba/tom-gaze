@@ -31,7 +31,7 @@ fn main() -> Result<()> {
 
     // Init face detection
     let ultraface_variant = UltrafaceVariant::W320H240;
-    let face_detector = UltrafaceModel::new(ultraface_variant, 0.5, 0.68)?;
+    let face_detector = UltrafaceModel::new(ultraface_variant, 0.5, 0.72)?;
 
     let mut camera = videoio::VideoCapture::new(0, videoio::CAP_ANY)?;
     let mut frame = Mat::default();

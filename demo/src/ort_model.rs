@@ -27,8 +27,9 @@ impl OrtModel {
         let result = out[0].try_extract_tensor::<f32>()?;
         let view = result.view();
         let rows = view.rows().into_iter().next().unwrap();
-        let pitch = rows[1];
-        let yaw = rows[0];
+        let pitch = rows[0];
+        let yaw = rows[1];
+        println!("pitsh: {pitch}; yaw: {yaw}");
 
         let vector = -nd::Array1::from_iter([
             f32::cos(pitch) * f32::sin(yaw),
