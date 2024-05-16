@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import './App.css';
 import { InferenceSession } from 'onnxruntime-web';
 import { inferFace, inferGaze } from './infer';
-import { OUTPUT_HEIGHT, OUTPUT_WIDTH, CAMERA_WIDTH, CAMERA_HEIGHT, MODEL_WIDTH, MODEL_HEIGHT, DEBUG } from './consts';
+import { OUTPUT_HEIGHT, OUTPUT_WIDTH, MODEL_WIDTH, MODEL_HEIGHT, DEBUG } from './consts';
 
 function App() {
 	useEffect(() => {
