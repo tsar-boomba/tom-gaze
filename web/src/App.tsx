@@ -38,7 +38,7 @@ function App() {
 					resultCanvas.width = OUTPUT_WIDTH;
 					resultCanvas.height = OUTPUT_HEIGHT;
 					resultCanvas.style.margin = 'auto';
-					document.body.appendChild(resultCanvas);
+					document.getElementById('root')!.appendChild(resultCanvas);
 					const resultContext = resultCanvas.getContext('2d', {
 						alpha: false,
 					})!;
